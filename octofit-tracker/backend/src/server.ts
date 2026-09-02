@@ -1,5 +1,5 @@
 import express from 'express';
-import './config/database.js';
+import { connectDatabase } from './config/database.js';
 import { getApiBaseUrl } from './config/api.js';
 import activitiesRouter from './routes/activities.js';
 import leaderboardRouter from './routes/leaderboard.js';
@@ -26,6 +26,15 @@ app.get('/api/config', (_request, response) => {
   response.json({ apiBaseUrl: getApiBaseUrl() });
 });
 
-app.listen(port, () => {
-  console.log(`OctoFit API listening on port ${port}`);
-});
+async function startServer() {
+  try {
+    await connectDatabase();
+    app.listen(port, () => {
+      console.log(`OctoFit API listening on port ${port}`);
+    });
+  } catch {
+    process.exitCode = 1;
+  }
+}
+
+void startServer();
